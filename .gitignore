@@ -1,0 +1,57 @@
+# =========================
+# Android Studio / IntelliJ
+# =========================
+
+.idea/
+*.iml
+.idea/workspace.xml
+.idea/usage.statistics.xml
+.idea/dictionaries/
+.idea/caches/
+
+# =========================
+# Gradle
+# =========================
+
+.gradle/
+build/
+**/build/
+
+# =========================
+# Android
+# =========================
+
+local.properties
+
+# APKs
+*.apk
+*.ap_
+*.aab
+
+# =========================
+# Kotlin
+# =========================
+
+*.class
+.kotlin/
+
+# =========================
+# Generated files
+# =========================
+
+captures/
+.externalNativeBuild/
+.cxx/
+
+# =========================
+# OS files
+# =========================
+
+.DS_Store
+Thumbs.db
+
+# =========================
+# Logs
+# =========================
+
+*.log
