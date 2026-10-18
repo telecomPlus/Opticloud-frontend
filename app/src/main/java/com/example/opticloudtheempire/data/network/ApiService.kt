@@ -1,8 +1,6 @@
 package com.example.opticloudtheempire.data.network
 
-import com.example.opticloudtheempire.data.model.Exam
-import com.example.opticloudtheempire.data.model.InventoryAlert
-import com.example.opticloudtheempire.data.model.Patient
+import com.example.opticloudtheempire.data.model.*
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -13,11 +11,17 @@ import retrofit2.http.Path
 
 interface ApiService {
 
-    // Alertas de inventario
+    // --- AUTENTICACIÓN ---
+    @POST("auth/login")
+    suspend fun login(@Body request: LoginRequest): AuthResponse
+
+    @POST("auth/register")
+    suspend fun register(@Body request: RegisterRequest): AuthResponse
+
+    // --- ALERTAS, PACIENTES Y EXÁMENES ---
     @GET("dashboard/alerts")
     suspend fun getInventoryAlerts(): List<InventoryAlert>
 
-    // Pacientes y Exámenes
     @GET("patients/{id}/exams")
     suspend fun getPatientExams(@Path("id") patientId: String): List<Exam>
 
@@ -37,6 +41,5 @@ interface ApiService {
     suspend fun updatePatient(@Path("id") patientId: String, @Body patient: Patient): Patient
 
     @DELETE("patients/{id}")
-    suspend fun deletePatient(
-        @Path("id") patientId: String): Response<Unit>
+    suspend fun deletePatient(@Path("id") patientId: String): Response<Unit>
 }

@@ -8,15 +8,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import com.example.opticloudtheempire.ui.navigation.AppNavigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.opticloudtheempire.data.network.RetrofitClient
+import com.example.opticloudtheempire.ui.navigation.AppNavigation
 import com.example.opticloudtheempire.ui.theme.OpticloudtheempireTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // Inicializar Retrofit con el contexto para manejar los tokens de autenticación
+        RetrofitClient.init(applicationContext)
+
         enableEdgeToEdge()
         setContent {
             OpticloudtheempireTheme {
