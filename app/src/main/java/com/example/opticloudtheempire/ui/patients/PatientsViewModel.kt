@@ -21,10 +21,14 @@ sealed interface PatientsListState {
 class PatientsViewModel : ViewModel() {
 
     // Formulario Nuevo Paciente
+    var documentNumber by mutableStateOf("")
     var fullName by mutableStateOf("")
     var email by mutableStateOf("")
     var phone by mutableStateOf("")
     var address by mutableStateOf("")
+
+    var isSaving by mutableStateOf(false)
+    var saveErrorMessage by mutableStateOf<String?>(null)
 
     // Búsqueda en el directorio
     var searchQuery by mutableStateOf("")
@@ -65,22 +69,40 @@ class PatientsViewModel : ViewModel() {
             }
         }
     }
+
     fun savePatient(onSuccess: () -> Unit) {
-        if (fullName.isBlank() || phone.isBlank()) return
+        if (documentNumber.isBlank() || fullName.isBlank() || email.isBlank() || phone.isBlank()) {
+            saveErrorMessage = "Por favor completa todos los campos requeridos (*)"
+            return
+        }
         viewModelScope.launch {
+            isSaving = true
+            saveErrorMessage = null
             try {
                 val newPatient = Patient(
-                    _id = "",
-                    name = fullName,
-                    email = email,
-                    phone = phone,
-                    address = address
+                    _id = null,
+                    documentNumber = documentNumber.trim(),
+                    name = fullName.trim(),
+                    email = email.trim(),
+                    phone = phone.trim(),
+                    address = address.trim().ifEmpty { null }
                 )
                 RetrofitClient.instance.createPatient(newPatient)
+
+                // Limpiar formulario tras éxito
+                documentNumber = ""
+                fullName = ""
+                email = ""
+                phone = ""
+                address = ""
+
                 fetchPatients()
                 onSuccess()
             } catch (e: Exception) {
-                // Manejar error de creación
+                e.printStackTrace()
+                saveErrorMessage = e.localizedMessage ?: "Error al guardar el paciente"
+            } finally {
+                isSaving = false
             }
         }
     }

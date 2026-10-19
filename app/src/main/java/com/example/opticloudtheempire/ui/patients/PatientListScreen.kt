@@ -97,6 +97,8 @@ fun PatientListScreen(
                 is PatientsListState.Success -> {
                     val filteredList = state.patients.filter {
                         it.name.contains(viewModel.searchQuery, ignoreCase = true) ||
+                                it.documentNumber.contains(viewModel.searchQuery, ignoreCase = true) ||
+                                it.phone.contains(viewModel.searchQuery, ignoreCase = true) ||
                                 (it.address?.contains(viewModel.searchQuery, ignoreCase = true) == true)
                     }
 
@@ -110,12 +112,12 @@ fun PatientListScreen(
                                 PatientItemCard(
                                     patient = patient,
                                     onEditClick = { selected ->
-                                        // Abre el diálogo asignando el paciente a editar
                                         patientToEdit = selected
                                     },
                                     onDeleteClick = { selected ->
-                                        // Aquí implementas tu borrado si lo requieres
-                                        viewModel.deletePatient(selected._id)
+                                        selected._id?.let { id ->
+                                            viewModel.deletePatient(id)
+                                        }
                                     }
                                 )
                             }
@@ -131,9 +133,9 @@ fun PatientListScreen(
                 patient = patient,
                 onDismiss = { patientToEdit = null },
                 onConfirm = { updatedPatient ->
-                    // Llamada al ViewModel con el ID y el objeto modificado para Node.js
-                    // (Asegúrate de cambiar 'patient.id' o 'patient._id' según tu modelo data class)
-                    viewModel.updatePatient(patient._id, updatedPatient)
+                    patient._id?.let { id ->
+                        viewModel.updatePatient(id, updatedPatient)
+                    }
                     patientToEdit = null
                 }
             )
@@ -169,7 +171,7 @@ fun PatientItemCard(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = "ID: ${patient.address ?: "Sin Doc."}",
+                    text = "Doc: ${patient.documentNumber}",
                     fontSize = 12.sp,
                     color = Color.Gray
                 )
@@ -220,15 +222,24 @@ fun EditPatientDialog(
     onConfirm: (Patient) -> Unit
 ) {
     // Pre-cargamos los estados locales con la información existente del paciente
+    var documentNumber by remember { mutableStateOf(patient.documentNumber) }
     var name by remember { mutableStateOf(patient.name) }
-    var address by remember { mutableStateOf(patient.address ?: "") }
+    var email by remember { mutableStateOf(patient.email) }
     var phone by remember { mutableStateOf(patient.phone) }
+    var address by remember { mutableStateOf(patient.address ?: "") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(text = "Editar Paciente", fontWeight = FontWeight.Bold) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedTextField(
+                    value = documentNumber,
+                    onValueChange = { documentNumber = it },
+                    label = { Text("Número de Identificación") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
                 OutlinedTextField(
                     value = name,
                     onValueChange = { name = it },
@@ -237,9 +248,9 @@ fun EditPatientDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
-                    value = address,
-                    onValueChange = { address = it },
-                    label = { Text("Documento / Dirección") },
+                    value = email,
+                    onValueChange = { email = it },
+                    label = { Text("Correo Electrónico") },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -250,16 +261,24 @@ fun EditPatientDialog(
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth()
                 )
+                OutlinedTextField(
+                    value = address,
+                    onValueChange = { address = it },
+                    label = { Text("Dirección (Opcional)") },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-
                     val updated = patient.copy(
-                        name = name,
-                        address = address,
-                        phone = phone
+                        documentNumber = documentNumber.trim(),
+                        name = name.trim(),
+                        email = email.trim(),
+                        phone = phone.trim(),
+                        address = address.trim().ifEmpty { null }
                     )
                     onConfirm(updated)
                 }

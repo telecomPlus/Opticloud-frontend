@@ -7,11 +7,12 @@ data class InventoryAlert(
 )
 
 data class Patient(
-    val _id: String,
-    val name: String,
-    val email: String,
-    val phone: String,
-    val address: String?
+    val _id: String? = null,
+    val documentNumber: String = "",
+    val name: String = "",
+    val email: String = "",
+    val phone: String = "",
+    val address: String? = null
 )
 
 data class Exam(
