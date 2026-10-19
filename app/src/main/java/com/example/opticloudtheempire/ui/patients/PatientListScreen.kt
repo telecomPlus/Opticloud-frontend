@@ -30,6 +30,9 @@ fun PatientListScreen(
     // Estado para controlar qué paciente se está editando en el diálogo
     var patientToEdit by remember { mutableStateOf<Patient?>(null) }
 
+    // Estado para controlar qué paciente se va a eliminar con confirmación
+    var patientToDelete by remember { mutableStateOf<Patient?>(null) }
+
     Scaffold(
         bottomBar = { BottomNavigationBar() },
         floatingActionButton = {
@@ -115,9 +118,7 @@ fun PatientListScreen(
                                         patientToEdit = selected
                                     },
                                     onDeleteClick = { selected ->
-                                        selected._id?.let { id ->
-                                            viewModel.deletePatient(id)
-                                        }
+                                        patientToDelete = selected
                                     }
                                 )
                             }
@@ -137,6 +138,51 @@ fun PatientListScreen(
                         viewModel.updatePatient(id, updatedPatient)
                     }
                     patientToEdit = null
+                }
+            )
+        }
+
+        // Modal de confirmación para eliminar paciente de forma segura
+        patientToDelete?.let { patient ->
+            AlertDialog(
+                onDismissRequest = { patientToDelete = null },
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Warning,
+                        contentDescription = null,
+                        tint = Color(0xFFEF4444)
+                    )
+                },
+                title = {
+                    Text(
+                        text = "Eliminar Paciente",
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                text = {
+                    Text(
+                        text = "¿Estás seguro de que deseas eliminar el expediente de \"${patient.name}\" (Doc: ${patient.documentNumber})? Esta acción no se puede deshacer y borrará su información permanentemente."
+                    )
+                },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            patient._id?.let { id ->
+                                viewModel.deletePatient(id)
+                            }
+                            patientToDelete = null
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFEF4444)
+                        )
+                    ) {
+                        Text("Eliminar", color = Color.White, fontWeight = FontWeight.Bold)
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { patientToDelete = null }) {
+                        Text("Cancelar")
+                    }
                 }
             )
         }
