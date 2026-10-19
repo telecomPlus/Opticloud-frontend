@@ -29,7 +29,13 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
-        bottomBar = { BottomNavigationBar() }
+        bottomBar = {
+            BottomNavigationBar(
+                currentRoute = "home",
+                onNavigateToHome = { /* Ya en Home */ },
+                onNavigateToPatients = onNavigateToPatients
+            )
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -188,22 +194,53 @@ fun InventoryAlertsCard(alerts: List<InventoryAlert>) {
 }
 
 @Composable
-fun BottomNavigationBar() {
-    var selectedItem by remember { mutableStateOf(0) }
-    val items = listOf("Inicio", "Pacientes", "Productos", "Perfil")
-    val icons = listOf(Icons.Default.Home, Icons.Default.People, Icons.Default.Category, Icons.Default.AccountCircle)
-
+fun BottomNavigationBar(
+    currentRoute: String = "home",
+    onNavigateToHome: () -> Unit = {},
+    onNavigateToPatients: () -> Unit = {}
+) {
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surface,
         tonalElevation = 8.dp
     ) {
-        items.forEachIndexed { index, item ->
-            NavigationBarItem(
-                icon = { Icon(icons[index], contentDescription = item) },
-                label = { Text(item, fontSize = 10.sp) },
-                selected = selectedItem == index,
-                onClick = { selectedItem = index }
-            )
-        }
+        NavigationBarItem(
+            icon = { Icon(Icons.Default.Home, contentDescription = "Inicio") },
+            label = { Text("Inicio", fontSize = 10.sp) },
+            selected = currentRoute == "home",
+            onClick = {
+                if (currentRoute != "home") {
+                    onNavigateToHome()
+                }
+            }
+        )
+
+        NavigationBarItem(
+            icon = { Icon(Icons.Default.People, contentDescription = "Pacientes") },
+            label = { Text("Pacientes", fontSize = 10.sp) },
+            selected = currentRoute == "patients",
+            onClick = {
+                if (currentRoute != "patients") {
+                    onNavigateToPatients()
+                }
+            }
+        )
+
+        NavigationBarItem(
+            icon = { Icon(Icons.Default.Category, contentDescription = "Productos") },
+            label = { Text("Productos", fontSize = 10.sp) },
+            selected = currentRoute == "products" || currentRoute == "inventory",
+            onClick = {
+                // Ruta para futuros módulos
+            }
+        )
+
+        NavigationBarItem(
+            icon = { Icon(Icons.Default.AccountCircle, contentDescription = "Perfil") },
+            label = { Text("Perfil", fontSize = 10.sp) },
+            selected = currentRoute == "profile",
+            onClick = {
+                // Ruta para futuros módulos
+            }
+        )
     }
 }

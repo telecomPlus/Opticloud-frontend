@@ -34,7 +34,13 @@ fun PatientListScreen(
     var patientToDelete by remember { mutableStateOf<Patient?>(null) }
 
     Scaffold(
-        bottomBar = { BottomNavigationBar() },
+        bottomBar = {
+            BottomNavigationBar(
+                currentRoute = "patients",
+                onNavigateToHome = onNavigateToHome,
+                onNavigateToPatients = { /* Ya en Pacientes */ }
+            )
+        },
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = onNavigateToNewPatient,
