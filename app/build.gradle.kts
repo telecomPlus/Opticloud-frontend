@@ -1,8 +1,26 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
+
+// Carga opcional de propiedades locales desde local.properties
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+
+val debugBaseUrl: String = localProperties.getProperty("API_BASE_URL_DEBUG")
+    ?.let { "\"$it\"" }
+    ?: "\"http://192.168.0.25:3000/api/v1/\""
+
+val releaseBaseUrl: String = localProperties.getProperty("API_BASE_URL_RELEASE")
+    ?.let { "\"$it\"" }
+    ?: "\"https://api.opticloudtheempire.com/api/v1/\""
 
 android {
     namespace = "com.example.opticloudtheempire"
@@ -19,8 +37,12 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "BASE_URL", debugBaseUrl)
+        }
         release {
             isMinifyEnabled = false
+            buildConfigField("String", "BASE_URL", releaseBaseUrl)
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -36,6 +58,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
