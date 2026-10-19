@@ -1,6 +1,7 @@
 package com.example.opticloudtheempire.data.network
 
 import android.content.Context
+import com.example.opticloudtheempire.BuildConfig
 import com.example.opticloudtheempire.data.local.TokenManager
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -8,7 +9,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "http://192.168.0.25:3000/api/v1/"
+    private val BASE_URL: String = BuildConfig.BASE_URL
     private lateinit var tokenManager: TokenManager
 
     fun init(context: Context) {
