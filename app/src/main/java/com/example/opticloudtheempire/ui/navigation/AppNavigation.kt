@@ -40,7 +40,11 @@ fun AppNavigation() {
         // Pantalla Principal (Home)
         composable("home") {
             HomeScreen(
-                onNavigateToPatients = { navController.navigate("patients") },
+                onNavigateToPatients = {
+                    navController.navigate("patients") {
+                        launchSingleTop = true
+                    }
+                },
                 onNavigateToExams = { navController.navigate("exams") },
                 onNavigateToInventory = { navController.navigate("inventory") }
             )
@@ -51,7 +55,12 @@ fun AppNavigation() {
             PatientListScreen(
                 viewModel = patientsViewModel,
                 onNavigateToNewPatient = { navController.navigate("new_patient") },
-                onNavigateToHome = { navController.navigate("home") }
+                onNavigateToHome = {
+                    navController.navigate("home") {
+                        popUpTo("home") { inclusive = false }
+                        launchSingleTop = true
+                    }
+                }
             )
         }
 
