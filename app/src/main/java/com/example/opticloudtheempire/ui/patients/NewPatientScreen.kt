@@ -1,15 +1,15 @@
 package com.example.opticloudtheempire.ui.patients
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState // <--- IMPORT CRÍTICO
-import androidx.compose.runtime.getValue         // <--- IMPORT CRÍTICO
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,10 +24,6 @@ fun NewPatientScreen(
     viewModel: PatientsViewModel = viewModel(),
     onBackClick: () -> Unit
 ) {
-    // Si en PatientsViewModel definiste "listState", usa listState.
-    // Si mantienes "uiState", asegúrate de que la propiedad exista en el ViewModel.
-    val uiState by viewModel.listState.collectAsState()
-
     Scaffold(
         topBar = {
             Row(
@@ -71,9 +67,9 @@ fun NewPatientScreen(
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF2563EB)
                         ),
-                        enabled = uiState !is PatientsListState.Loading
+                        enabled = !viewModel.isSaving
                     ) {
-                        if (uiState is PatientsListState.Loading) {
+                        if (viewModel.isSaving) {
                             CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                         } else {
                             Icon(Icons.Default.Save, contentDescription = null)
@@ -85,35 +81,52 @@ fun NewPatientScreen(
             }
         }
     ) { paddingValues ->
+        val scrollState = rememberScrollState()
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
+                .verticalScroll(scrollState)
                 .padding(horizontal = 20.dp, vertical = 10.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             OutlinedTextField(
+                value = viewModel.documentNumber,
+                onValueChange = { viewModel.documentNumber = it },
+                label = { Text("Número de Identificación *") },
+                placeholder = { Text("Ej: 1020304050") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(14.dp),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true
+            )
+
+            OutlinedTextField(
                 value = viewModel.fullName,
                 onValueChange = { viewModel.fullName = it },
-                label = { Text("Nombre Completo") },
+                label = { Text("Nombre Completo *") },
+                placeholder = { Text("Ej: Carlos Rodríguez") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp),
                 singleLine = true
             )
 
             OutlinedTextField(
-                value = viewModel.address,
-                onValueChange = { viewModel.address = it },
-                label = { Text("Documento de Identidad") },
+                value = viewModel.email,
+                onValueChange = { viewModel.email = it },
+                label = { Text("Correo Electrónico *") },
+                placeholder = { Text("ejemplo@correo.com") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 singleLine = true
             )
 
             OutlinedTextField(
                 value = viewModel.phone,
                 onValueChange = { viewModel.phone = it },
-                label = { Text("Teléfono") },
+                label = { Text("Teléfono *") },
+                placeholder = { Text("Ej: 3001234567") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
@@ -121,22 +134,31 @@ fun NewPatientScreen(
             )
 
             OutlinedTextField(
-                value = viewModel.email,
-                onValueChange = { viewModel.email = it },
-                label = { Text("Correo Electrónico") },
+                value = viewModel.address,
+                onValueChange = { viewModel.address = it },
+                label = { Text("Dirección (Opcional)") },
+                placeholder = { Text("Ej: Calle 10 # 20-30") },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(14.dp),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 singleLine = true
             )
 
-            if (uiState is PatientsListState.Error) {
-                Text(
-                    text = (uiState as PatientsListState.Error).message,
-                    color = MaterialTheme.colorScheme.error,
-                    fontSize = 12.sp
-                )
+            viewModel.saveErrorMessage?.let { error ->
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer),
+                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = error,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        fontSize = 13.sp,
+                        modifier = Modifier.padding(14.dp)
+                    )
+                }
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
