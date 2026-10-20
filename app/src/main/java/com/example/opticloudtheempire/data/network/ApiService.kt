@@ -22,6 +22,32 @@ interface ApiService {
     @GET("dashboard/alerts")
     suspend fun getInventoryAlerts(): List<InventoryAlert>
 
+    // --- EXÁMENES OPTOMÉTRICOS ---
+    @POST("exams")
+    suspend fun registerExam(
+        @Body exam: ExamRequestDto
+    ): Response<ApiResponse<ExamResponseDto>>
+
+    @GET("exams/{id}")
+    suspend fun getExamById(
+        @Path("id") examId: String
+    ): Response<ApiResponse<ExamResponseDto>>
+
+    @GET("patients/{patientId}/exams")
+    suspend fun getPatientExamsHistory(
+        @Path("patientId") patientId: String,
+        @retrofit2.http.Query("page") page: Int = 1,
+        @retrofit2.http.Query("limit") limit: Int = 10
+    ): Response<ApiResponse<com.google.gson.JsonElement>>
+
+    @GET("exams")
+    suspend fun getAllExams(
+        @retrofit2.http.Query("patientId") patientId: String? = null,
+        @retrofit2.http.Query("examType") examType: String? = null,
+        @retrofit2.http.Query("page") page: Int = 1,
+        @retrofit2.http.Query("limit") limit: Int = 20
+    ): Response<ApiResponse<com.google.gson.JsonElement>>
+
     @GET("patients/{id}/exams")
     suspend fun getPatientExams(@Path("id") patientId: String): List<Exam>
 

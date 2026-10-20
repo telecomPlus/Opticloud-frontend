@@ -23,7 +23,9 @@ import com.example.opticloudtheempire.ui.home.BottomNavigationBar
 fun PatientListScreen(
     viewModel: PatientsViewModel,
     onNavigateToNewPatient: () -> Unit,
-    onNavigateToHome: () -> Unit
+    onNavigateToHome: () -> Unit,
+    onNavigateToNewExam: (String) -> Unit = {},
+    onNavigateToExamHistory: (String) -> Unit = {}
 ) {
     val listState by viewModel.listState.collectAsState()
 
@@ -125,6 +127,12 @@ fun PatientListScreen(
                                     },
                                     onDeleteClick = { selected ->
                                         patientToDelete = selected
+                                    },
+                                    onNewExamClick = { selected ->
+                                        selected._id?.let { onNavigateToNewExam(it) }
+                                    },
+                                    onHistoryClick = { selected ->
+                                        selected._id?.let { onNavigateToExamHistory(it) }
                                     }
                                 )
                             }
@@ -199,68 +207,108 @@ fun PatientListScreen(
 fun PatientItemCard(
     patient: Patient,
     onEditClick: (Patient) -> Unit,
-    onDeleteClick: (Patient) -> Unit
+    onDeleteClick: (Patient) -> Unit,
+    onNewExamClick: (Patient) -> Unit,
+    onHistoryClick: (Patient) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = patient.name,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1E293B)
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Doc: ${patient.documentNumber}",
-                    fontSize = 12.sp,
-                    color = Color.Gray
-                )
-                Text(
-                    text = patient.phone,
-                    fontSize = 12.sp,
-                    color = Color.Gray
-                )
-            }
-
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                IconButton(
-                    onClick = { onEditClick(patient) },
-                    modifier = Modifier
-                        .size(36.dp)
-                        .background(Color(0xFFF1F5F9), shape = CircleShape)
-                ) {
-                    Icon(
-                        Icons.Default.Edit,
-                        contentDescription = "Editar",
-                        tint = Color(0xFF2563EB),
-                        modifier = Modifier.size(18.dp)
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = patient.name,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF1E293B)
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "Doc: ${patient.documentNumber}",
+                        fontSize = 12.sp,
+                        color = Color.Gray
+                    )
+                    Text(
+                        text = patient.phone,
+                        fontSize = 12.sp,
+                        color = Color.Gray
                     )
                 }
 
-                IconButton(
-                    onClick = { onDeleteClick(patient) },
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    IconButton(
+                        onClick = { onEditClick(patient) },
+                        modifier = Modifier
+                            .size(36.dp)
+                            .background(Color(0xFFF1F5F9), shape = CircleShape)
+                    ) {
+                        Icon(
+                            Icons.Default.Edit,
+                            contentDescription = "Editar",
+                            tint = Color(0xFF2563EB),
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+
+                    IconButton(
+                        onClick = { onDeleteClick(patient) },
+                        modifier = Modifier
+                            .size(36.dp)
+                            .background(Color(0xFFFEF2F2), shape = CircleShape)
+                    ) {
+                        Icon(
+                            Icons.Default.Delete,
+                            contentDescription = "Eliminar",
+                            tint = Color(0xFFEF4444),
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+            HorizontalDivider(color = Color(0xFFF1F5F9))
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Botones de acción clínica para el paciente
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                OutlinedButton(
+                    onClick = { onHistoryClick(patient) },
                     modifier = Modifier
-                        .size(36.dp)
-                        .background(Color(0xFFFEF2F2), shape = CircleShape)
+                        .weight(1f)
+                        .height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF475569))
                 ) {
-                    Icon(
-                        Icons.Default.Delete,
-                        contentDescription = "Eliminar",
-                        tint = Color(0xFFEF4444),
-                        modifier = Modifier.size(18.dp)
-                    )
+                    Icon(Icons.Default.History, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Historial", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                }
+
+                Button(
+                    onClick = { onNewExamClick(patient) },
+                    modifier = Modifier
+                        .weight(1.2f)
+                        .height(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2563EB)),
+                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    Icon(Icons.Default.Visibility, contentDescription = null, modifier = Modifier.size(16.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("Nuevo Examen", fontSize = 12.sp, fontWeight = FontWeight.Bold)
                 }
             }
         }
