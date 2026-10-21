@@ -24,7 +24,8 @@ fun HomeScreen(
     viewModel: HomeViewModel = viewModel(),
     onNavigateToPatients: () -> Unit,
     onNavigateToExams: () -> Unit,
-    onNavigateToInventory: () -> Unit
+    onNavigateToInventory: () -> Unit,
+    onLogout: () -> Unit // <--- NUEVO: Callback para el cierre de sesión
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -43,7 +44,7 @@ fun HomeScreen(
                 .padding(paddingValues)
                 .padding(20.dp)
         ) {
-            HeaderSection()
+            HeaderSection(onLogout = onLogout) // <--- Pasamos la acción al Header
             Spacer(modifier = Modifier.height(32.dp))
             QuickAccessSection(onNavigateToPatients, onNavigateToExams, onNavigateToInventory)
             Spacer(modifier = Modifier.height(32.dp))
@@ -58,7 +59,6 @@ fun HomeScreen(
                     InventoryAlertsCard(alerts = state.alerts)
                 }
                 is HomeUiState.Error -> {
-                    // Fallback visual demostrativo en caso de que el backend no devuelva datos o el endpoint no exista aún
                     val demoAlerts = listOf(
                         InventoryAlert("1", "Lentes Bifocales", 3),
                         InventoryAlert("2", "Marcos Ray-Ban Original", 2)
@@ -73,7 +73,7 @@ fun HomeScreen(
 }
 
 @Composable
-fun HeaderSection() {
+fun HeaderSection(onLogout: () -> Unit) { // <--- Recibe el callback de logout
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -100,8 +100,8 @@ fun HeaderSection() {
                 Text("Hola, Dr. Murcia", fontSize = 22.sp, fontWeight = FontWeight.Bold)
             }
         }
-        IconButton(onClick = { /* Acción de Logout */ }) {
-            Icon(Icons.Default.Logout, contentDescription = "Cerrar sesión")
+        IconButton(onClick = onLogout) { // <--- Invocamos el logout al pulsar
+            Icon(Icons.Default.Logout, contentDescription = "Cerrar sesión", tint = MaterialTheme.colorScheme.error)
         }
     }
 }
@@ -152,7 +152,7 @@ fun InventoryAlertsCard(alerts: List<InventoryAlert>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF0F0)) // Fondo suave rojo
+        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFF0F0))
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -229,18 +229,14 @@ fun BottomNavigationBar(
             icon = { Icon(Icons.Default.Category, contentDescription = "Productos") },
             label = { Text("Productos", fontSize = 10.sp) },
             selected = currentRoute == "products" || currentRoute == "inventory",
-            onClick = {
-                // Ruta para futuros módulos
-            }
+            onClick = {}
         )
 
         NavigationBarItem(
             icon = { Icon(Icons.Default.AccountCircle, contentDescription = "Perfil") },
             label = { Text("Perfil", fontSize = 10.sp) },
             selected = currentRoute == "profile",
-            onClick = {
-                // Ruta para futuros módulos
-            }
+            onClick = {}
         )
     }
 }
