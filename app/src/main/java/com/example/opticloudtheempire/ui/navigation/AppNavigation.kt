@@ -50,7 +50,16 @@ fun AppNavigation() {
                     }
                 },
                 onNavigateToExams = { navController.navigate("new_exam") },
-                onNavigateToInventory = { navController.navigate("inventory") }
+                onNavigateToInventory = { navController.navigate("inventory") },
+                onLogout = {
+                    // 1. Limpiar el token de SharedPreferences y memoria RAM
+                    tokenManager.clearToken()
+
+                    // 2. Redirigir al login limpiando todo el historial de navegación
+                    navController.navigate("login") {
+                        popUpTo(0) { inclusive = true }
+                    }
+                }
             )
         }
 
