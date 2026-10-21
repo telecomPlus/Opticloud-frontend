@@ -1,7 +1,6 @@
 package com.example.opticloudtheempire.data.network
 
 import android.content.Context
-import com.example.opticloudtheempire.BuildConfig
 import com.example.opticloudtheempire.data.local.TokenManager
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
@@ -9,7 +8,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private val BASE_URL: String = BuildConfig.BASE_URL
+    // URL fija directa para el emulador de Android Studio (10.0.2.2 apunta al localhost de tu PC)
+    private const val BASE_URL = "http://10.0.2.2:3000/api/v1/"
     private lateinit var tokenManager: TokenManager
 
     fun init(context: Context) {
